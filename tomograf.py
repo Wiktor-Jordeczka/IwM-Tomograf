@@ -253,26 +253,4 @@ def jpg_to_dcm(reconstructed,name="BRAK",patient_id="0",date="",comment="BRAK"):
   # Prywatne bloki do zapisania własnych danych
   block = dcm.private_block(0x000b, "PUT 151785 151741", create=True)
   block.add_new(0x01, "SH", comment)
-
-  '''print(f"Nazwisko i imię pacjenta: {dcm.PatientName.family_comma_given()}")
-  print(f"ID pacjenta: {dcm.get('PatientID', 'BRAK')}")
-  print(f"Data badania: {dcm.get('StudyDate', 'BRAK')}")
-  print(f"Rozmiar obrazu: {dcm.get('Rows', 'BRAK')} x {dcm.get('Columns', 'BRAK')}")
-  if (0x000b, 0x0010) in dcm:
-    print(f"Autorzy: {dcm[0x000b0010].value}")
-  if (0x0010, 0x4000) in dcm:
-    print(f"Komentarze: {dcm[0x00104000].value}")'''
   dcm.save_as("output.dcm", write_like_original=False)
-
-'''def read_dcm(file):
-  dcm = dic.dcmread(file)
-  print(f"Nazwisko i imię pacjenta: {dcm.PatientName.family_comma_given()}")
-  print(f"ID pacjenta: {dcm.get('PatientID', 'BRAK')}")
-  print(f"Data badania: {dcm.get('StudyDate', 'BRAK')}")
-  print(f"Rozmiar obrazu: {dcm.get('Rows', 'BRAK')} x {dcm.get('Columns', 'BRAK')}")
-  if (0x000b, 0x0010) in dcm:
-    print(f"Autorzy: {dcm[0x000b0010].value}")
-  if (0x000b, 0x1001) in dcm:
-    print(f"Komentarze: {dcm[0x000b1001].value}")
-  print()
-  showImage(dcm.pixel_array)'''
