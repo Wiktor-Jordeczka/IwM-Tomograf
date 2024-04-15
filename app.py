@@ -141,7 +141,7 @@ class Application(ThemedTk):
         self.file_label.config(text=self.file_path)
         if self.file_path[-4:] == ".dcm":
             dcm = dic.dcmread(self.file_path)
-            self.im = dcm.pixel_array
+            self.im = tm.normalize(dcm.pixel_array) # wydobycie danych pikseli z pliku dicom + normalizacja
             print(dcm)
             self.name_entry.insert(0, dcm.PatientName.family_comma_given())
             self.id_entry.insert(0, dcm.get('PatientID', 'BRAK')) 
