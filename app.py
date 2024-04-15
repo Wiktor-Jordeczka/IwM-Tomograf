@@ -192,8 +192,8 @@ class Application(ThemedTk):
         animation = False
         if self.animation_var.get() == 1:
             animation = True
-        if self.im is None:  # tu psułem
-            self.im = tm.loadImage(self.file_path)
+        if self.im is None:
+            self.im = tm.loadImage(self.file_path) # ładowanie pliku + normalizacja
         img = self.image_fit_to_show(self.im)
         self.img1_label = ttk.Label(self.photo_frame2, image=img)
         self.img1_label.image = img
@@ -201,18 +201,20 @@ class Application(ThemedTk):
         self.update()
 
         self.img2_label = ttk.Label(self.photo_frame3, image=img)
+        # utworzenie sinogramu
         sinogram = tm.radonTransform(self.im,t=self,img_label=2,animating=animation,numOfScans=int(self.num_of_scans_entry.get()),alphaShift=int(self.step_entry.get()),emitterRange = int(self.emitter_range_entry.get()), numOfDetectors = int(self.num_of_detectors_entry.get()) )
         self.showImage(sinogram,2)
 
-        if self.filter_var.get() == 1:
+        if self.filter_var.get() == 1: # filtrowanie sinogramu
             self.img4_label = ttk.Label(self.photo_frame4, image=img)
             tm.filtr(sinogram,t=self,animating=animation,img_label=4)
             self.showImage(sinogram,4,flag=True)
 
         self.img5_label = ttk.Label(self.photo_frame5, image=img)
+        # rekonstrukcja obrazu z wykorzystaniem odwr. transf. Radona
         reconstructed = tm.inverseRadonTransform(sinogram,self.im,t=self,img_label=5,animating=animation,numOfScans=int(self.num_of_scans_entry.get()),alphaShift=int(self.step_entry.get()),emitterRange = int(self.emitter_range_entry.get()), numOfDetectors = int(self.num_of_detectors_entry.get()) )
         self.showImage(reconstructed,5)
-        if self.dicom_var.get() == 1:
+        if self.dicom_var.get() == 1: # wywołanie zapisu do pliku
             tm.jpg_to_dcm(reconstructed,self.name_entry.get(),self.id_entry.get(),self.date_entry.get(),self.comment_entry.get())
         else:
             Image.fromarray(reconstructed).convert("L").save("output.png")
