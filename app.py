@@ -35,7 +35,7 @@ class Application(ThemedTk):
         self.entry_frame.pack(pady=10)
 
         self.step_entry = self.create_entry(self.entry_frame, "Krok alfa")
-        self.step_entry.insert(0, '2')
+        self.step_entry.insert(0, '1')
         self.emitter_range_entry = self.create_entry(self.entry_frame, "Rozpiętość układu emiter/detektor")
         self.emitter_range_entry.insert(0, '180')
         self.num_of_detectors_entry = self.create_entry(self.entry_frame, "Liczba dekoderów")
