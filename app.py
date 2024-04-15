@@ -147,7 +147,6 @@ class Application(ThemedTk):
             self.id_entry.insert(0, dcm.get('PatientID', 'BRAK')) 
             self.date_entry.set_date(datetime.strptime(dcm.get('StudyDate', ''), '%m/%d/%y').date())
             if (0x0010, 0x4000) in dcm:
-            #type(dcm[0x00104000].value)
                 self.comment_entry.insert(0,dcm[0x00104000].value)
 
     def create_entry(self, parent, text):
