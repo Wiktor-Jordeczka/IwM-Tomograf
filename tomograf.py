@@ -7,7 +7,7 @@ import copy
 import datetime
 
 
-def normalize(im): # normalizacja
+def normalize(im): # normalizacja obrazu
   norm = np.zeros(shape=(im.shape))
   im_max = im.max()
   im_min = 0
@@ -24,7 +24,7 @@ def showImage(im,animating=False): # drukuje obrazek, normalizując zakres warto
   if animating==True:
       im = normalize(copy.deepcopy(im))
   vmax = im.max()
-  plt.imshow(im, cmap='gray', vmin=0.0, vmax=vmax);  # Średnik na końcu zmienia output??? WTF??!!
+  plt.imshow(im, cmap='gray', vmin=0.0, vmax=vmax)
   plt.show()
 
 def showImage2(im,animating=False,i=1): # drukuje obrazek, normalizując zakres wartości
@@ -32,7 +32,7 @@ def showImage2(im,animating=False,i=1): # drukuje obrazek, normalizując zakres 
       im = normalize(copy.deepcopy(im))
   vmax = im.max()
   plt.figure(i)
-  return plt.imshow(im, cmap='gray', vmin=0.0, vmax=vmax).figure;  # Średnik na końcu zmienia output??? WTF??!!
+  return plt.imshow(im, cmap='gray', vmin=0.0, vmax=vmax).figure
 
 def bresenham(img,x1,y1,x2,y2): # algorytm Bresenhama, zwraca średnią jasność
   max_x = len(img)
@@ -81,38 +81,31 @@ def bresenham(img,x1,y1,x2,y2): # algorytm Bresenhama, zwraca średnią jasnoś�
         ep += ep_inc_b
       y += y_inc
   try:
-    a = sum/n
-  except: # ¯\_(ツ)_/¯
-    a = 0
+    a = sum/n # średnia jasność pikseli w rysowanej linii
+  except: 
+    a = 0 # Uroki okręgu opisanego ¯\_(ツ)_/¯
   return a
 
 def radonTransform(img,t,img_label, emitterRange = 180, numOfDetectors = 180, numOfScans = 180, alphaShift = 2, animating = False, animationInterval = 20):
   t.set_label_progress("Transformata Radona")
   alphaShift = math.radians(alphaShift)
   center = (len(img)//2, len(img[0])//2)
-  #R = min(center)
   R = max(center) * math.sqrt(2)
   alpha = (2*math.pi*90)/360 # alpha emitera, zaczynamy od 90 stopni myślę i tu wystarczy potem dodawać to przesunięcie
   phi = (2*math.pi*emitterRange)/360 # kąt rozwarcia dla detektorów
-  #print("E ({},{})".format(xe,ye))
   sinogram = np.zeros(shape=(numOfScans,numOfDetectors))
   for scan in range(numOfScans): # dla każdego skanu
     t.progress((scan/numOfScans)*100)
-    # tutaj dla wzyznaczanych współrzędnych za każdym razem odnoszę się do środka, aby nie robić potem przesunięć tylko od razu
+    # tutaj dla wzyznaczanych współrzędnych za każdym razem odnoszę się do środka, aby nie robić potem przesunięć
     xe = center[0] + round(R * math.cos(alpha))
     ye = center[1] - round(R * math.sin(alpha))
     for det in range(numOfDetectors): # dla każdego detektora
       xd = center[0] + round(R * math.cos(alpha+math.pi-phi/2 + det*phi/(numOfDetectors-1)))
       yd = center[1] - round(R * math.sin(alpha+math.pi-phi/2 + det*phi/(numOfDetectors-1)))
-      #print("D{} ({},{})".format(i,xd,yd))
-      sinogram[scan][det] = bresenham(img,xe,ye,xd,yd)
+      sinogram[scan][det] = bresenham(img,xe,ye,xd,yd) # rysujemy linię od emitera do detektora
     alpha += alphaShift # wykonujemy przesunięcie
-    if animating and scan % animationInterval == 0:
+    if animating and scan % animationInterval == 0: # sekcja animacji
       t.showImage(normalize(sinogram),img_label)
-      #showImage(sinogram,animating)
-      
-      
-      #plotImage(sinogram,ax,animating=animation)
   return normalize(sinogram)
 
 def inverseBresenham(max_x,max_y,x1,y1,x2,y2): # zwraca koordynaty pikseli między emiterem a detektorem
@@ -136,7 +129,6 @@ def inverseBresenham(max_x,max_y,x1,y1,x2,y2): # zwraca koordynaty pikseli międ
     while x!=x2:
       if not(x>=max_x or y>=max_y or x<0 or y<0):
         coords.append((x-1,y-1))
-      #print(f"({x} {y})")
       if ep>=0:
         y += y_inc
         ep += ep_inc_a
@@ -149,7 +141,6 @@ def inverseBresenham(max_x,max_y,x1,y1,x2,y2): # zwraca koordynaty pikseli międ
     ep = ep_inc_b - dy # błąd (odchylenie od współrzędnych całkowitych)
     x = x1
     while y!=y2:
-      #print(f"({x} {y})")
       if not(x>=max_x or y>=max_y or x<0 or y<0):
         coords.append((x-1,y-1))
       if ep>=0:
@@ -164,27 +155,23 @@ def inverseRadonTransform(sinogram, img,t,img_label, emitterRange = 180, numOfDe
   t.set_label_progress("Odwrotna Transformata Radona")
   alphaShift = math.radians(alphaShift)
   center = (img.shape[0]//2, img.shape[1]//2)
-  #R = min(center)
   R = max(center) * math.sqrt(2)
   alpha = (2*math.pi*90)/360 # alpha emitera, zaczynamy od 90 stopni myślę i tu wystarczy potem dodawać to przesunięcie
   phi = (2*math.pi*emitterRange)/360 # kąt rozwarcia dla detektorów
-  #print("E ({},{})".format(xe,ye))
   reconstructed = np.zeros(shape=img.shape)
   for scan in range(numOfScans): # dla każdego skanu (wzmocnienia)
     t.progress((scan/numOfScans)*100)
-    # tutaj dla wzyznaczanych współrzędnych za każdym razem odnoszę się do środka, aby nie robić potem przesunięć tylko od razu
+    # tutaj dla wzyznaczanych współrzędnych za każdym razem odnoszę się do środka, aby nie robić potem przesunięć
     xe = center[0] + round(R * math.cos(alpha))
     ye = center[1] - round(R * math.sin(alpha))
     for det in range(numOfDetectors): # dla każdego detektora
       xd = center[0] + round(R * math.cos(alpha+math.pi-phi/2 + det*phi/(numOfDetectors-1)))
       yd = center[1] - round(R * math.sin(alpha+math.pi-phi/2 + det*phi/(numOfDetectors-1)))
-      #print("D{} ({},{})".format(i,xd,yd))
-      coords = inverseBresenham(img.shape[0], img.shape[1],xe,ye,xd,yd)
-      reconstructed[tuple(np.transpose(coords))] += sinogram[scan][det] # Numpy robi brrrrrrrrr
+      coords = inverseBresenham(img.shape[0], img.shape[1],xe,ye,xd,yd) # wyznaczamy linię między emiterem a detektorem
+      reconstructed[tuple(np.transpose(coords))] += sinogram[scan][det] # wzmacniamy piksele wyznaczonej linii o odpowiednią średnią
     alpha += alphaShift # wykonujemy przesunięcie
-    if animating and scan % animationInterval == 0:
+    if animating and scan % animationInterval == 0: # sekcja animacji
       t.showImage(normalize(reconstructed),img_label)
-      #plotImage(sinogram,ax,animating=animation)
       mse, rmse = calcRMSE(img,normalize(reconstructed))
       t.set_label_progress(f"Odwrotna Transformata Radona\nRMSE: {rmse:.4f}")
       print(f"\nBłąd średniokwadratowy wynosi {mse:.2f}")
@@ -193,7 +180,7 @@ def inverseRadonTransform(sinogram, img,t,img_label, emitterRange = 180, numOfDe
   t.set_label_progress(f"Odwrotna Transformata Radona\nRMSE: {rmse:.4f}")
   return normalize(reconstructed)
 
-def filtr(sinogram,t,img_label, animating = False):
+def filtr(sinogram,t,img_label, animating = False): # filtr splotowy
   t.set_label_progress("Filtrowanie")
   result = []
   for i in range(1,11):
@@ -203,18 +190,18 @@ def filtr(sinogram,t,img_label, animating = False):
       result.append(-4/pow(math.pi,2)/pow(i,2))
   res2 = result.copy()
   result.reverse()
-  kernel = result + [1] + res2
+  kernel = result + [1] + res2 # tworzymy rdzeń, wykorzystujemy odbicie lustrzane
   for i in range(sinogram.shape[0]):
     t.progress((i/sinogram.shape[0])*100)
-    sinogram[i, :] = np.convolve(sinogram[i, :], kernel, mode="same")
+    sinogram[i, :] = np.convolve(sinogram[i, :], kernel, mode="same") # wykonujemy splot
     if animating:
       t.showImage(normalize(sinogram),img_label,flag=True)
 
-def calcRMSE(im1, im2):
+def calcRMSE(im1, im2): # obliczanie RMSE
   mse = np.square(np.subtract(im1, im2)).mean()
   return (mse, math.sqrt(mse)) # (mse, rmse)
 
-def jpg_to_dcm(reconstructed,name="BRAK",patient_id="0",date="",comment="BRAK"):
+def jpg_to_dcm(reconstructed,name="BRAK",patient_id="0",date="",comment="BRAK"): # zapisywanie obrazu do dicom
   # Meta tagi
   file_meta = dic.dataset.FileMetaDataset()
   file_meta.MediaStorageSOPClassUID = dic.uid.UID('1.2.840.10008.5.1.4.1.1.2')
@@ -242,7 +229,6 @@ def jpg_to_dcm(reconstructed,name="BRAK",patient_id="0",date="",comment="BRAK"):
   dcm.PatientID = patient_id
   dcm.StudyID = "1234"
   dcm.SeriesNumber = "1"
-
   dcm.PatientComments = comment
 
   dcm.SOPInstanceUID = dic.uid.generate_uid()
@@ -262,23 +248,23 @@ def jpg_to_dcm(reconstructed,name="BRAK",patient_id="0",date="",comment="BRAK"):
   dcm.PhotometricInterpretation = 'MONOCHROME2'
   dcm.PixelRepresentation = 0
 
-  dcm.PixelData = reconstructed.astype(np.uint8).tobytes()
+  dcm.PixelData = reconstructed.astype(np.uint8).tobytes() # dane obrazka
 
   # Prywatne bloki do zapisania własnych danych
   block = dcm.private_block(0x000b, "PUT 151785 151741", create=True)
   block.add_new(0x01, "SH", comment)
 
-  print(f"Nazwisko i imię pacjenta: {dcm.PatientName.family_comma_given()}")
+  '''print(f"Nazwisko i imię pacjenta: {dcm.PatientName.family_comma_given()}")
   print(f"ID pacjenta: {dcm.get('PatientID', 'BRAK')}")
   print(f"Data badania: {dcm.get('StudyDate', 'BRAK')}")
   print(f"Rozmiar obrazu: {dcm.get('Rows', 'BRAK')} x {dcm.get('Columns', 'BRAK')}")
   if (0x000b, 0x0010) in dcm:
     print(f"Autorzy: {dcm[0x000b0010].value}")
   if (0x0010, 0x4000) in dcm:
-    print(f"Komentarze: {dcm[0x00104000].value}")
+    print(f"Komentarze: {dcm[0x00104000].value}")'''
   dcm.save_as("output.dcm", write_like_original=False)
 
-def read_dcm(file):
+'''def read_dcm(file):
   dcm = dic.dcmread(file)
   print(f"Nazwisko i imię pacjenta: {dcm.PatientName.family_comma_given()}")
   print(f"ID pacjenta: {dcm.get('PatientID', 'BRAK')}")
@@ -289,4 +275,4 @@ def read_dcm(file):
   if (0x000b, 0x1001) in dcm:
     print(f"Komentarze: {dcm[0x000b1001].value}")
   print()
-  showImage(dcm.pixel_array)
+  showImage(dcm.pixel_array)'''
