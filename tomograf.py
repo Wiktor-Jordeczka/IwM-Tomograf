@@ -20,20 +20,6 @@ def loadImage(imgPath): # ładuje obrazek
   im = normalize(im)
   return im
 
-def showImage(im,animating=False): # drukuje obrazek, normalizując zakres wartości
-  if animating==True:
-      im = normalize(copy.deepcopy(im))
-  vmax = im.max()
-  plt.imshow(im, cmap='gray', vmin=0.0, vmax=vmax)
-  plt.show()
-
-def showImage2(im,animating=False,i=1): # drukuje obrazek, normalizując zakres wartości
-  if animating==True:
-      im = normalize(copy.deepcopy(im))
-  vmax = im.max()
-  plt.figure(i)
-  return plt.imshow(im, cmap='gray', vmin=0.0, vmax=vmax).figure
-
 def bresenham(img,x1,y1,x2,y2): # algorytm Bresenhama, zwraca średnią jasność
   max_x = len(img)
   max_y = len(img[0])
