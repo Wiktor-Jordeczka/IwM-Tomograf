@@ -1,9 +1,7 @@
 import math
 import skimage as sk
-import matplotlib.pyplot as plt
 import numpy as np
 import pydicom as dic
-import copy
 import datetime
 
 
