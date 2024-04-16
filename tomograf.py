@@ -90,7 +90,7 @@ def radonTransform(img,t,img_label, emitterRange = 180, numOfDetectors = 180, nu
     alpha += alphaShift # wykonujemy przesunięcie
     if animating and scan % animationInterval == 0: # sekcja animacji
       t.showImage(normalize(sinogram),img_label)
-  return normalize(sinogram)
+  return sinogram
 
 def inverseBresenham(max_x,max_y,x1,y1,x2,y2): # zwraca koordynaty pikseli między emiterem a detektorem
   coords = []
