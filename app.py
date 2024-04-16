@@ -139,10 +139,11 @@ class Application(ThemedTk):
         self.im = None
         self.file_path = filedialog.askopenfilename(filetypes=[("Obraz", ".jpg .png"),("DICOM", ".dcm")])
         self.file_label.config(text=self.file_path)
-        if self.file_path[-4:] == ".dcm":
-            dcm = dic.dcmread(self.file_path)
+        if self.file_path[-4:] == ".dcm": # dla plików dicom
+            dcm = dic.dcmread(self.file_path) # wczytanie pliku
             self.im = tm.normalize(dcm.pixel_array) # wydobycie danych pikseli z pliku dicom + normalizacja
             print(dcm)
+            # odczytujemy wybrane informacje
             self.name_entry.insert(0, dcm.PatientName.family_comma_given())
             self.id_entry.insert(0, dcm.get('PatientID', 'BRAK')) 
             self.date_entry.set_date(datetime.strptime(dcm.get('StudyDate', ''), '%m/%d/%y').date())
