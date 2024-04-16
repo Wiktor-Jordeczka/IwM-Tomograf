@@ -163,11 +163,6 @@ class Application(ThemedTk):
 
         return entry
     
-    def show_mse(self, mse):
-        for widget in self.mse_frame.winfo_children():
-            widget.destroy()
-        ttk.Label(self.mse_frame, text="RMSE: " + str(mse)).pack(side="top")
-    
     def image_fit_to_show(self,im,flag=False):
         if flag:
             norm = tm.normalize(im)
