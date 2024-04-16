@@ -167,14 +167,14 @@ def inverseRadonTransform(sinogram, img,t,img_label, emitterRange = 180, numOfDe
 def filtr(sinogram,t,img_label, animating = False): # filtr splotowy
   t.set_label_progress("Filtrowanie")
   result = []
-  for i in range(1,11):
+  for i in range(1,11): # tworzymy połowę maski
     if i%2==0:
       result.append(0)
     else:
       result.append(-4/pow(math.pi,2)/pow(i,2))
   res2 = result.copy()
-  result.reverse()
-  kernel = result + [1] + res2 # tworzymy rdzeń, wykorzystujemy odbicie lustrzane
+  result.reverse() # wykorzystujemy odbicie lustrzane
+  kernel = result + [1] + res2 # tworzymy maskę o rozmiarze 21
   for i in range(sinogram.shape[0]):
     t.progress((i/sinogram.shape[0])*100)
     sinogram[i, :] = np.convolve(sinogram[i, :], kernel, mode="same") # wykonujemy splot
