@@ -1,9 +1,7 @@
 import math
 import skimage as sk
-import matplotlib.pyplot as plt
 import numpy as np
 import pydicom as dic
-import copy
 import datetime
 
 
@@ -169,14 +167,14 @@ def inverseRadonTransform(sinogram, img,t,img_label, emitterRange = 180, numOfDe
 def filtr(sinogram,t,img_label, animating = False): # filtr splotowy
   t.set_label_progress("Filtrowanie")
   result = []
-  for i in range(1,11):
+  for i in range(1,11): # tworzymy połowę maski
     if i%2==0:
       result.append(0)
     else:
       result.append(-4/pow(math.pi,2)/pow(i,2))
   res2 = result.copy()
-  result.reverse()
-  kernel = result + [1] + res2 # tworzymy rdzeń, wykorzystujemy odbicie lustrzane
+  result.reverse() # wykorzystujemy odbicie lustrzane
+  kernel = result + [1] + res2 # tworzymy maskę o rozmiarze 21
   for i in range(sinogram.shape[0]):
     t.progress((i/sinogram.shape[0])*100)
     sinogram[i, :] = np.convolve(sinogram[i, :], kernel, mode="same") # wykonujemy splot
@@ -193,14 +191,12 @@ def jpg_to_dcm(reconstructed,name="BRAK",patient_id="0",date="",comment="BRAK"):
   file_meta.MediaStorageSOPClassUID = dic.uid.UID('1.2.840.10008.5.1.4.1.1.2')
   file_meta.MediaStorageSOPInstanceUID = dic.uid.generate_uid()
   file_meta.ImplementationClassUID = dic.uid.UID("1.2.826.0.1.3680043.8.498.1")
-
   dcm = dic.dataset.FileDataset("output.dcm", {}, file_meta=file_meta, preamble=b"\0" * 128)
-
   dcm.file_meta.TransferSyntaxUID = dic.uid.ImplicitVRLittleEndian
   dcm.is_little_endian = True
   dcm.is_implicit_VR = True
 
-  # Zapisujemy!
+  # Zapisujemy wybrane dane o pacjencie i badaniu
   dt = datetime.datetime.now()
   if date == "":
     dcm.StudyDate = dt.strftime('%Y%m%d')
@@ -209,7 +205,7 @@ def jpg_to_dcm(reconstructed,name="BRAK",patient_id="0",date="",comment="BRAK"):
     dcm.StudyDate = date
     dcm.ContentDate = date
   dcm.StudyTime = dt.strftime('%H%M%S')
-  timeStr = dt.strftime('%H%M%S.%f')  # long format with micro seconds
+  timeStr = dt.strftime('%H%M%S.%f')
   dcm.ContentTime = timeStr
   dcm.PatientName = name
   dcm.PatientID = patient_id
@@ -217,11 +213,13 @@ def jpg_to_dcm(reconstructed,name="BRAK",patient_id="0",date="",comment="BRAK"):
   dcm.SeriesNumber = "1"
   dcm.PatientComments = comment
 
+  # Generijemy unikatowe ID instancji
   dcm.SOPInstanceUID = dic.uid.generate_uid()
   dcm.SeriesInstanceUID = dic.uid.generate_uid()
   dcm.StudyInstanceUID = dic.uid.generate_uid()
   dcm.FrameOfReferenceUID = dic.uid.generate_uid()
 
+  # Parametry obrazu
   dcm.ImageType = ["ORIGINAL", "PRIMARY", "AXIAL"]
   dcm.Modality = "CT"
   dcm.Rows = reconstructed.shape[0]
@@ -229,14 +227,12 @@ def jpg_to_dcm(reconstructed,name="BRAK",patient_id="0",date="",comment="BRAK"):
   dcm.BitsAllocated = 8
   dcm.BitsStored = 8
   dcm.HighBit = dcm.BitsStored - 1
-
   dcm.SamplesPerPixel = 1
   dcm.PhotometricInterpretation = 'MONOCHROME2'
   dcm.PixelRepresentation = 0
+  dcm.PixelData = reconstructed.astype(np.uint8).tobytes() # piksele obrazka
 
-  dcm.PixelData = reconstructed.astype(np.uint8).tobytes() # dane obrazka
-
-  # Prywatne bloki do zapisania własnych danych
+  # Prywatne bloki do zapisania własnych danych, np.: komentarza
   block = dcm.private_block(0x000b, "PUT 151785 151741", create=True)
   block.add_new(0x01, "SH", comment)
   dcm.save_as("output.dcm", write_like_original=False)
