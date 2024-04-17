@@ -70,7 +70,7 @@ def bresenham(img,x1,y1,x2,y2): # algorytm Bresenhama, zwraca średnią jasnoś�
     a = 0 # Uroki okręgu opisanego ¯\_(ツ)_/¯
   return a
 
-def radonTransform(img,t,img_label, emitterRange = 180, numOfDetectors = 180, numOfScans = 180, alphaShift = 2, animating = False, animationInterval = 20):
+def radonTransform(img,t,img_label, emitterRange = 180, numOfDetectors = 180, numOfScans = 180, alphaShift = 2, animating = False, animationInterval = 5):
   t.set_label_progress("Transformata Radona")
   alphaShift = math.radians(alphaShift)
   center = (len(img)//2, len(img[0])//2)
@@ -135,7 +135,7 @@ def inverseBresenham(max_x,max_y,x1,y1,x2,y2): # zwraca koordynaty pikseli międ
       y += y_inc
   return coords
 
-def inverseRadonTransform(sinogram, img,t,img_label, emitterRange = 180, numOfDetectors = 180, numOfScans = 180, alphaShift = 2, animating = False, animationInterval=20):
+def inverseRadonTransform(sinogram, img,t,img_label, emitterRange = 180, numOfDetectors = 180, numOfScans = 180, alphaShift = 2, animating = False, animationInterval=5):
   t.set_label_progress("Odwrotna Transformata Radona")
   alphaShift = math.radians(alphaShift)
   center = (img.shape[0]//2, img.shape[1]//2)
